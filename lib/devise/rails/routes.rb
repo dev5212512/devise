@@ -378,7 +378,7 @@ module ActionDispatch::Routing
         resource :session, only: [], controller: controllers[:sessions], path: "" do
           get   :new,     path: mapping.path_names[:sign_in],  as: "new"
           post  :create,  path: mapping.path_names[:sign_in]
-          match :destroy, path: mapping.path_names[:sign_out], as: "destroy", via: mapping.sign_out_via
+          post :destroy, path: mapping.path_names[:sign_out], as: "destroy", via: mapping.sign_out_via
         end
       end
 
@@ -444,15 +444,13 @@ ERROR
         set_omniauth_path_prefix!(path_prefix)
 
         mapping.to.omniauth_providers.each do |provider|
-          match "#{path_prefix}/#{provider}",
+          post "#{path_prefix}/#{provider}",
             to: "#{controllers[:omniauth_callbacks]}#passthru",
-            as: "#{provider}_omniauth_authorize",
-            via: OmniAuth.config.allowed_request_methods
+            as: "#{provider}_omniauth_authorize"
 
-          match "#{path_prefix}/#{provider}/callback",
+          post "#{path_prefix}/#{provider}/callback",
             to: "#{controllers[:omniauth_callbacks]}##{provider}",
-            as: "#{provider}_omniauth_callback",
-            via: [:get, :post]
+            as: "#{provider}_omniauth_callback"
         end
       ensure
         @scope = current_scope
